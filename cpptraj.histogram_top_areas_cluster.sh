@@ -29,14 +29,17 @@ clusname=c1
 
 awk -v max=$max '{if($2>=(max-0.1) && $2<=(max+0.1)) printf($1",")}' rmsd1.dat > c1.dat
 
-
-echo "parm strip.prmtop.new" > cpp_extract_selected_frames.in
-echo "trajin combined_md.mdcrd 1 last 1" >> cpp_extract_selected_frames.in
-echo "autoimage" >> cpp_extract_selected_frames.in
-echo "rms fit :1-4" >> cpp_extract_selected_frames.in 
-printf "trajout $clusname.mdcrd netcdf onlyframes $(cat c1.dat) \n" >> cpp_extract_selected_frames.in  # exract only selected frames from 
-echo "run" >> cpp_extract_selected_frames.in
-echo "exit" >> cpp_extract_selected_frames.in
+cat> cpp_extract_selected_frames.in<EOF
+parm strip.prmtop.new
+trajin combined_md.mdcrd 1 last 1
+autoimage
+rms fit :1-4
+# exract only selected frames from
+trajout $clusname.mdcrd netcdf onlyframes $(cat c1.dat) \n
+run
+exit
+go
+EOF
 
 cpptraj -i cpp_extract_selected_frames.in
 
